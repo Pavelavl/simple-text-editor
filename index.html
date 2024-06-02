@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Визуальный редактор текста</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+        integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="./styles.css">
+</head>
+
+<body>
+    <main class="container">
+        <div class="tools-area">
+            <button id="bold" class="tools-btn"><i class="fa-solid fa-bold"></i></button>
+            <button id="italic" class="tools-btn"><i class="fa-solid fa-italic"></i></button>
+            <button id="underline" class="tools-btn"><i class="fa-solid fa-underline"></i></button>
+        </div>
+        <div class="txt-area">
+            <div contentEditable class="text" id="text" rows="20">
+            </div>
+        </div>
+    </main>
+
+    <script src="./main.js"></script>
+</body>
+
+</html>

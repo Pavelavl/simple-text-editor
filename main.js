@@ -1,3 +1,5 @@
+const DOMParser = window.DOMParser || require("dom-parser");
+
 const boldRegex = /<b>(.*?)<\/b>/g;
 const underlineRegex = /<u>(.*?)<\/u>/g;
 const italicRegex = /<i>(.*?)<\/i>/g;
@@ -34,7 +36,43 @@ document.addEventListener("DOMContentLoaded", function () {
       console.log(htmlToAnsi(allText));
     }
   });
+
+  text.addEventListener("paste", (event) => {
+    event.preventDefault();
+
+    const clipboardData = event.clipboardData;
+    const pastedHTML = clipboardData.getData("text/html");
+    const filteredHTML = filterHTML(pastedHTML);
+
+    document.execCommand("insertHTML", false, filteredHTML);
+  });
 });
+
+function filterHTML(html) {
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(html, "text/html");
+  const allowedTags = ["b", "u", "i", "br"];
+  const filteredNodes = [];
+  function processNode(node) {
+    if (node.nodeType === Node.ELEMENT_NODE) {
+      if (allowedTags.includes(node.tagName.toLowerCase())) {
+        filteredNodes.push(node);
+      } else {
+        if (node.hasChildNodes()) {
+          for (let child of node.childNodes) {
+            processNode(child);
+          }
+        }
+      }
+    } else if (node.nodeType === Node.TEXT_NODE) {
+      filteredNodes.push(node.cloneNode(true));
+    }
+  }
+  processNode(doc.body);
+  const filteredHTML = doc.createElement("div");
+  filteredNodes.forEach((node) => filteredHTML.appendChild(node));
+  return filteredHTML.innerHTML;
+}
 
 function htmlToAnsi(html) {
   let ansiString = html;

@@ -42,9 +42,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const clipboardData = event.clipboardData;
     const pastedHTML = clipboardData.getData("text/html");
-    const filteredHTML = filterHTML(pastedHTML);
+    const pastedText = clipboardData.getData("text");
+    if (pastedHTML) {
+      return document.execCommand("insertHTML", false, filterHTML(pastedHTML));
+    }
 
-    document.execCommand("insertHTML", false, filteredHTML);
+    document.execCommand("insertText", false, pastedText);
   });
 });
 

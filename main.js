@@ -20,14 +20,17 @@ document.addEventListener("DOMContentLoaded", function () {
 
   boldButton.addEventListener("click", function () {
     document.execCommand("bold", false, null);
+    text.focus();
   });
 
   italicButton.addEventListener("click", function () {
     document.execCommand("italic", false, null);
+    text.focus();
   });
 
   underlineButton.addEventListener("click", function () {
     document.execCommand("underline", false, null);
+    text.focus();
   });
 
   logButton.addEventListener("click", function () {
@@ -72,9 +75,11 @@ function filterHTML(html) {
     }
   }
   processNode(doc.body);
-  const filteredHTML = doc.createElement("div");
-  filteredNodes.forEach((node) => filteredHTML.appendChild(node));
-  return filteredHTML.innerHTML;
+  let filteredHTML = "";
+  filteredNodes.forEach((node) => {
+    filteredHTML += node.outerHTML || node.wholeText
+  });
+  return filteredHTML;
 }
 
 function htmlToAnsi(html) {

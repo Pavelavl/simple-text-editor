@@ -13,6 +13,11 @@ const ansiCodes = {
 };
 
 document.addEventListener("DOMContentLoaded", function () {
+  const allText = text.innerHTML;
+  if (allText) {
+    console.log(htmlToAnsi(allText));
+    console.log(allText);
+  }
   const boldButton = document.getElementById("bold");
   const underlineButton = document.getElementById("underline");
   const italicButton = document.getElementById("italic");
@@ -47,7 +52,8 @@ document.addEventListener("DOMContentLoaded", function () {
     const pastedHTML = clipboardData.getData("text/html");
     const pastedText = clipboardData.getData("text");
     if (pastedHTML) {
-      return document.execCommand("insertHTML", false, filterHTML(pastedHTML));
+      const decodedHTML = decodeHTMLEntities(pastedHTML);
+      return document.execCommand("insertHTML", false, filterHTML(decodedHTML).trimEnd());
     }
 
     document.execCommand("insertText", false, pastedText);
@@ -58,28 +64,29 @@ function filterHTML(html) {
   const parser = new DOMParser();
   const doc = parser.parseFromString(html, "text/html");
   const allowedTags = ["b", "u", "i", "br"];
-  const filteredNodes = [];
-  function processNode(node) {
-    if (node.nodeType === Node.ELEMENT_NODE) {
-      if (allowedTags.includes(node.tagName.toLowerCase())) {
-        filteredNodes.push(node);
+
+  function traverse(node) {
+    let result = "";
+
+    node.childNodes.forEach((child) => {
+      if (child.nodeType === Node.TEXT_NODE) {
+        result += child.textContent;
+      } else if (
+        child.nodeType === Node.ELEMENT_NODE &&
+        allowedTags.includes(child.tagName.toLowerCase())
+      ) {
+        const element = document.createElement(child.tagName);
+        element.innerHTML = traverse(child);
+        result += element.outerHTML;
       } else {
-        if (node.hasChildNodes()) {
-          for (let child of node.childNodes) {
-            processNode(child);
-          }
-        }
+        result += traverse(child);
       }
-    } else if (node.nodeType === Node.TEXT_NODE) {
-      filteredNodes.push(node.cloneNode(true));
-    }
+    });
+
+    return result;
   }
-  processNode(doc.body);
-  let filteredHTML = "";
-  filteredNodes.forEach((node) => {
-    filteredHTML += node.outerHTML || node.wholeText
-  });
-  return filteredHTML;
+
+  return traverse(doc.body);
 }
 
 function htmlToAnsi(html) {
@@ -98,4 +105,12 @@ function htmlToAnsi(html) {
   });
 
   return ansiString;
+}
+
+
+// helper to avoid &gt, &lt, etc.
+function decodeHTMLEntities(text) {
+  const textarea = document.createElement("textarea");
+  textarea.innerHTML = text;
+  return textarea.value;
 }
